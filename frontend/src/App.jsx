@@ -18,6 +18,7 @@ import { Exports } from "./pages/Exports";
 import { Settings } from "./pages/Settings";
 import { Navbar } from "./components/Layout/Navbar";
 import { Sidebar } from "./components/Layout/Sidebar";
+import {Shipment} from "./pages/Shipment";
 
 function ProtectedLayout({ children }) {
   const { user, loading } = useAuth();
@@ -118,6 +119,14 @@ function AppContent() {
         element={
           <ProtectedLayout>
             <Settings />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/shipment"
+        element={
+          <ProtectedLayout>
+            <Shipment />
           </ProtectedLayout>
         }
       />

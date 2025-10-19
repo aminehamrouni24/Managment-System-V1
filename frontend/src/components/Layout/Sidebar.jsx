@@ -9,6 +9,7 @@ import {
   Download,
   Settings,
   X,
+  Container
 } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useLocation, useNavigate } from "react-router";
@@ -25,6 +26,7 @@ export function Sidebar() {
     { path: "/products", icon: Package, label: t.nav.products },
     { path: "/suppliers", icon: Users, label: t.nav.suppliers },
     { path: "/customers", icon: UserCircle, label: t.nav.customers },
+    { path: "/shipment", icon: Container, label: t.nav.shipment },
     { path: "/invoices", icon: FileText, label: t.nav.invoices },
     { path: "/stock", icon: TrendingUp, label: t.nav.stock },
     { path: "/reports", icon: BarChart3, label: t.nav.reports },

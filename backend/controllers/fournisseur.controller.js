@@ -85,6 +85,42 @@ exports.deleteFournisseur = async (req, res) => {
 };
 
 // ✅ ADD product delivery
+// exports.addDelivery = async (req, res) => {
+//   try {
+//     const { productId, quantite, prixAchat, montantPaye } = req.body;
+
+//     const fournisseur = await Fournisseur.findById(req.params.id);
+//     if (!fournisseur)
+//       return res.status(404).json({ message: "Fournisseur not found" });
+
+//     const product = await Product.findById(productId);
+//     if (!product) return res.status(404).json({ message: "Product not found" });
+
+//     // Add the delivery
+//     fournisseur.produitsFournis.push({
+//       product: productId,
+//       quantite,
+//       prixAchat,
+//       montantPaye,
+//       montantTotal: prixAchat * quantite,
+//       resteAPayer: prixAchat * quantite - montantPaye,
+//       status: montantPaye >= prixAchat * quantite ? "paid" : "pending",
+//     });
+
+//     await fournisseur.save();
+
+//     // Increase stock quantity in Product
+//     product.quantite += quantite;
+//     await product.save();
+
+//     res.status(200).json({
+//       message: "Delivery added and stock updated successfully",
+//       data: fournisseur,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 exports.addDelivery = async (req, res) => {
   try {
     const { productId, quantite, prixAchat, montantPaye } = req.body;
@@ -96,21 +132,25 @@ exports.addDelivery = async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
+    const quantiteNum = Number(quantite);
+    const prixNum = Number(prixAchat);
+    const montantNum = Number(montantPaye);
+
     // Add the delivery
     fournisseur.produitsFournis.push({
       product: productId,
-      quantite,
-      prixAchat,
-      montantPaye,
-      montantTotal: prixAchat * quantite,
-      resteAPayer: prixAchat * quantite - montantPaye,
-      status: montantPaye >= prixAchat * quantite ? "paid" : "pending",
+      quantite: quantiteNum,
+      prixAchat: prixNum,
+      montantPaye: montantNum,
+      montantTotal: prixNum * quantiteNum,
+      resteAPayer: prixNum * quantiteNum - montantNum,
+      status: montantNum >= prixNum * quantiteNum ? "paid" : "pending",
     });
 
     await fournisseur.save();
 
-    // Increase stock quantity in Product
-    product.quantite += quantite;
+    // ✅ Increase stock quantity in Product
+    product.quantite = (product.quantite || 0) + quantiteNum;
     await product.save();
 
     res.status(200).json({
@@ -118,6 +158,7 @@ exports.addDelivery = async (req, res) => {
       data: fournisseur,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };

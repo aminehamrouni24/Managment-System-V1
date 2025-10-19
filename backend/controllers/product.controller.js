@@ -80,8 +80,8 @@ exports.updateProduct = async (req, res) => {
     product.nom = nom || product.nom;
     product.marque = marque || product.marque;
     product.categorie = categorie || product.categorie;
-    product.quantite = quantite != null ? quantite : product.quantite;
-    product.prixAchat = prixAchat != null ? prixAchat : product.prixAchat;
+    product.quantite = Number(product.quantite) + Number(quantite);
+    product.prixAchat = Number(prixAchat);
 
     await product.save();
 
@@ -107,5 +107,23 @@ exports.deleteProduct = async (req, res) => {
     return res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+exports.increase = async (req, res) => {
+  try {
+    const quantite = parseInt(req.body.quantite, 10);
+
+    const product = await Product.findById(req.params.id);
+    if (!product)
+      return res.status(404).json({ message: "Produit introuvable" });
+
+    console.log("Before:", product.quantite, "Adding:", quantite);
+    product.quantite += quantite;
+    await product.save();
+    console.log("After save:", product.quantite);
+
+    res.json({ message: "Quantité mise à jour", product });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
   }
 };

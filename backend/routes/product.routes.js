@@ -9,5 +9,9 @@ router.get("/all", verifyToken, isAdmin, productController.getAllProducts); // G
 router.get("/:id", verifyToken, isAdmin, productController.getProductById); // Get one
 router.put("/:id", verifyToken, isAdmin, productController.updateProduct); // Update
 router.delete("/:id", verifyToken, isAdmin, productController.deleteProduct); // Delete
-
+router.put(
+  "/:id/increase",
+  verifyToken,
+  productController.increase
+);
 module.exports = router;

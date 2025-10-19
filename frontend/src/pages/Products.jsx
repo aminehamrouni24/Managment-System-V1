@@ -41,18 +41,52 @@ export function Products() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     try {
+      // Ensure numeric values
+      const payload = {
+        ...formData,
+        quantite: Number(formData.quantite),
+        prixAchat: Number(formData.prixAchat),
+      };
+
       if (editingProduct) {
+        // Update existing product
         await axios.put(
           `http://localhost:5000/api/product/${editingProduct._id}`,
-          formData,
+          payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
-        await axios.post("http://localhost:5000/api/product", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Check if product already exists
+        const existing = products.find(
+          (p) =>
+            p.nom === payload.nom &&
+            p.marque === payload.marque &&
+            p.categorie === payload.categorie
+        );
+
+        if (existing) {
+          // Merge quantities numerically
+          const newQuantite = parseInt(payload.quantite, 10);
+
+          await axios.put(
+            `http://localhost:5000/api/product/${existing._id}`,
+            {
+              ...existing,
+              quantite: newQuantite,
+              prixAchat: parseFloat(payload.prixAchat),
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        } else {
+          // Create new product
+          await axios.post("http://localhost:5000/api/product", payload, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }
       }
+
       fetchProducts();
       closeModal();
     } catch (error) {
@@ -64,6 +98,7 @@ export function Products() {
   async function handleDelete(id) {
     if (!isAdmin || !window.confirm("Êtes-vous sûr de vouloir supprimer ?"))
       return;
+
     try {
       await axios.delete(`http://localhost:5000/api/product/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -81,8 +116,8 @@ export function Products() {
         nom: product.nom,
         marque: product.marque,
         categorie: product.categorie,
-        quantite: product.quantite,
-        prixAchat: product.prixAchat,
+        quantite: Number(product.quantite),
+        prixAchat: Number(product.prixAchat),
       });
     } else {
       setEditingProduct(null);
@@ -117,6 +152,7 @@ export function Products() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t.products.title}</h1>
         {isAdmin && (
@@ -130,6 +166,7 @@ export function Products() {
         )}
       </div>
 
+      {/* Search */}
       <div className="bg-white rounded-xl shadow-md p-4">
         <div className="relative">
           <Search className="absolute top-3 left-3 w-5 h-5 text-gray-400" />
@@ -143,6 +180,7 @@ export function Products() {
         </div>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
@@ -175,9 +213,9 @@ export function Products() {
                 <td className="px-6 py-4 font-medium">{product.nom}</td>
                 <td className="px-6 py-4 text-gray-600">{product.marque}</td>
                 <td className="px-6 py-4">{product.categorie}</td>
-                <td className="px-6 py-4">{product.quantite}</td>
+                <td className="px-6 py-4">{Number(product.quantite)}</td>
                 <td className="px-6 py-4 font-medium">
-                  {product.prixAchat} DT
+                  {Number(product.prixAchat)} DT
                 </td>
                 {isAdmin && (
                   <td className="px-6 py-4">
@@ -203,7 +241,7 @@ export function Products() {
         </table>
       </div>
 
-      {/* MODAL */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -267,7 +305,7 @@ export function Products() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        quantite: parseInt(e.target.value),
+                        quantite: parseInt(e.target.value || 0, 10),
                       })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
@@ -287,7 +325,7 @@ export function Products() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        prixAchat: parseFloat(e.target.value),
+                        prixAchat: parseFloat(e.target.value || 0),
                       })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"

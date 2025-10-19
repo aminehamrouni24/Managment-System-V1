@@ -53,7 +53,7 @@ export function Login() {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={myLogo} alt="KETHIRI" className="h-80 w-80 mx-auto mb-4" />
+          <img src={myLogo} alt="KETHIRI" className="h-50 w-50 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">KETHIRI</h1>
           <p className="text-gray-600 mt-2">{t.dashboard.title}</p>
         </div>

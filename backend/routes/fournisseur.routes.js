@@ -20,4 +20,5 @@ router.put(
   fournisseurController.updatePayment
 );
 
+
 module.exports = router;
