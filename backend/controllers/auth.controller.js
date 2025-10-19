@@ -58,7 +58,7 @@ exports.adminLogin = async (req, res) => {
     const token = jwt.sign(
       { id: admin._id, email: admin.email, role:  "admin" },
       process.env.JWT_SECRET || "your_jwt_secret",
-      { expiresIn: "1h" }
+      { expiresIn: "5h" }
     );
 
     // 4️⃣ Return token + admin info (without password)

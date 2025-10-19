@@ -23,14 +23,12 @@ exports.getStatistics = async (req, res) => {
 
     res.status(200).json({
       message: "Statistiques récupérées avec succès",
-      data: {
-        totalProduits: productCount,
-        totalClients: clientCount,
-        totalFournisseurs: fournisseurCount,
-        totalFactures,
-        facturesClients: clientFactures,
-        facturesFournisseurs: fournisseurFactures,
-      },
+      totalProduits: productCount,
+      totalClients: clientCount,
+      totalFournisseurs: fournisseurCount,
+      totalFactures,
+      facturesClients: clientFactures,
+      facturesFournisseurs: fournisseurFactures,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,128 +1,135 @@
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
-// import { supabase } from "../lib/supabase";
+import axios from "axios";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Products() {
   const { t } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { token, user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    brand: "",
-    category: "",
-    quantity: 0,
-    purchase_price: 0,
-    sale_price: 0,
-    barcode: "",
-    min_stock_alert: 10,
+    nom: "",
+    marque: "",
+    categorie: "",
+    quantite: 0,
+    prixAchat: 0,
   });
 
-  // useEffect(() => {
-  //   fetchProducts();
-  // }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  // async function fetchProducts() {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from("products")
-  //       .select("*")
-  //       .order("created_at", { ascending: false });
-  //     if (error) throw error;
-  //     setProducts(data || []);
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
+  async function fetchProducts() {
+    try {
+      const res = await axios.get("http://localhost:5000/api/product/all", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(res.data.products || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  // async function handleSubmit(e) {
-  //   e.preventDefault();
-  //   try {
-  //     if (editingProduct) {
-  //       const { error } = await supabase
-  //         .from("products")
-  //         .update(formData)
-  //         .eq("id", editingProduct.id);
-  //       if (error) throw error;
-  //     } else {
-  //       const { error } = await supabase.from("products").insert([formData]);
-  //       if (error) throw error;
-  //     }
-  //     fetchProducts();
-  //     closeModal();
-  //   } catch (error) {
-  //     alert(error.message);
-  //   }
-  // }
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      if (editingProduct) {
+        await axios.put(
+          `http://localhost:5000/api/product/${editingProduct._id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        await axios.post("http://localhost:5000/api/product", formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      fetchProducts();
+      closeModal();
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Erreur lors de la sauvegarde.");
+    }
+  }
 
-  // async function handleDelete(id) {
-  //   if (!isAdmin || !window.confirm("Are you sure?")) return;
-  //   try {
-  //     const { error } = await supabase.from("products").delete().eq("id", id);
-  //     if (error) throw error;
-  //     fetchProducts();
-  //   } catch (error) {
-  //     alert(error.message);
-  //   }
-  // }
+  async function handleDelete(id) {
+    if (!isAdmin || !window.confirm("Êtes-vous sûr de vouloir supprimer ?"))
+      return;
+    try {
+      await axios.delete(`http://localhost:5000/api/product/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchProducts();
+    } catch (error) {
+      alert(error.response?.data?.message || "Erreur lors de la suppression.");
+    }
+  }
 
-  // function openModal(product = null) {
-  //   if (product) {
-  //     setEditingProduct(product);
-  //     setFormData(product);
-  //   } else {
-  //     setEditingProduct(null);
-  //     setFormData({
-  //       name: "",
-  //       brand: "",
-  //       category: "",
-  //       quantity: 0,
-  //       purchase_price: 0,
-  //       sale_price: 0,
-  //       barcode: "",
-  //       min_stock_alert: 10,
-  //     });
-  //   }
-  //   setShowModal(true);
-  // }
+  function openModal(product = null) {
+    if (product) {
+      setEditingProduct(product);
+      setFormData({
+        nom: product.nom,
+        marque: product.marque,
+        categorie: product.categorie,
+        quantite: product.quantite,
+        prixAchat: product.prixAchat,
+      });
+    } else {
+      setEditingProduct(null);
+      setFormData({
+        nom: "",
+        marque: "",
+        categorie: "",
+        quantite: 0,
+        prixAchat: 0,
+      });
+    }
+    setShowModal(true);
+  }
 
-  // function closeModal() {
-  //   setShowModal(false);
-  //   setEditingProduct(null);
-  // }
+  function closeModal() {
+    setShowModal(false);
+    setEditingProduct(null);
+  }
 
-  // const filteredProducts = products.filter(
-  //   (p) =>
-  //     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     p.brand.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const filteredProducts = products.filter(
+    (p) =>
+      p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.marque.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  // if (loading)
-  //   return (
-  //     <div className="flex items-center justify-center h-64">
-  //       {t.common.loading}
-  //     </div>
-  //   );
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        {t.common.loading}
+      </div>
+    );
 
   return (
     <div className="space-y-6">
-      {/* <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t.products.title}</h1>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-        >
-          <Plus className="w-5 h-5" />
-          {t.products.addProduct}
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            <Plus className="w-5 h-5" />
+            {t.products.addProduct}
+          </button>
+        )}
       </div>
+
       <div className="bg-white rounded-xl shadow-md p-4">
         <div className="relative">
           <Search className="absolute top-3 left-3 w-5 h-5 text-gray-400" />
@@ -135,148 +142,132 @@ export function Products() {
           />
         </div>
       </div>
+
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.name}
+                Nom
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.brand}
+                Marque
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.category}
+                Catégorie
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.quantity}
+                Quantité
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.purchasePrice}
+                Prix d’achat (DT)
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.salePrice}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t.products.actions}
-              </th>
+              {isAdmin && (
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y">
             {filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium">{product.name}</td>
-                <td className="px-6 py-4 text-gray-600">{product.brand}</td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                    {product.category}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={
-                      product.quantity <= product.min_stock_alert
-                        ? "font-medium text-red-600"
-                        : ""
-                    }
-                  >
-                    {product.quantity}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-gray-600">
-                  {product.purchase_price} DH
-                </td>
+              <tr key={product._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 font-medium">{product.nom}</td>
+                <td className="px-6 py-4 text-gray-600">{product.marque}</td>
+                <td className="px-6 py-4">{product.categorie}</td>
+                <td className="px-6 py-4">{product.quantite}</td>
                 <td className="px-6 py-4 font-medium">
-                  {product.sale_price} DH
+                  {product.prixAchat} DT
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => openModal(product)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    {isAdmin && (
+                {isAdmin && (
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => openModal(product)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product._id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    )}
-                  </div>
-                </td>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b">
               <h2 className="text-2xl font-bold">
-                {editingProduct
-                  ? t.products.editProduct
-                  : t.products.addProduct}
+                {editingProduct ? "Modifier le produit" : "Ajouter un produit"}
               </h2>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.products.name}
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Nom</label>
                   <input
                     type="text"
-                    value={formData.name}
+                    value={formData.nom}
                     onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
+                      setFormData({ ...formData, nom: e.target.value })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.products.brand}
+                    Marque
                   </label>
                   <input
                     type="text"
-                    value={formData.brand}
+                    value={formData.marque}
                     onChange={(e) =>
-                      setFormData({ ...formData, brand: e.target.value })
+                      setFormData({ ...formData, marque: e.target.value })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.products.category}
+                    Catégorie
                   </label>
                   <input
                     type="text"
-                    value={formData.category}
+                    value={formData.categorie}
                     onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value })
+                      setFormData({ ...formData, categorie: e.target.value })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.products.quantity}
+                    Quantité
                   </label>
                   <input
                     type="number"
-                    value={formData.quantity}
+                    value={formData.quantite}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        quantity: parseInt(e.target.value),
+                        quantite: parseInt(e.target.value),
                       })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
@@ -284,68 +275,19 @@ export function Products() {
                     min="0"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    {t.products.purchasePrice}
+                    Prix d’achat (DT)
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    value={formData.purchase_price}
+                    value={formData.prixAchat}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        purchase_price: parseFloat(e.target.value),
-                      })
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.products.salePrice}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.sale_price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        sale_price: parseFloat(e.target.value),
-                      })
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                    required
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.products.barcode}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.barcode}
-                    onChange={(e) =>
-                      setFormData({ ...formData, barcode: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.products.minStock}
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.min_stock_alert}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        min_stock_alert: parseInt(e.target.value),
+                        prixAchat: parseFloat(e.target.value),
                       })
                     }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
@@ -354,6 +296,7 @@ export function Products() {
                   />
                 </div>
               </div>
+
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
@@ -372,7 +315,7 @@ export function Products() {
             </form>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }

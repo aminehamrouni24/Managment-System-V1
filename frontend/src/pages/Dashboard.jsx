@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import myLogo from "../../assets/KETHIRI.svg";
-
 import {
-  TrendingUp,
   Package,
   Users,
-  AlertTriangle,
-  DollarSign,
+  Factory,
+  FileText,
+  UserCheck,
+  UserMinus,
 } from "lucide-react";
 import axios from "axios";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -14,14 +13,14 @@ import { useAuth } from "../contexts/AuthContext";
 
 export function Dashboard() {
   const { t } = useLanguage();
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [stats, setStats] = useState({
-    totalProducts: 0,
-    lowStock: 0,
+    totalProduits: 0,
     totalClients: 0,
-    totalSuppliers: 0,
-    totalSales: 0,
-    pendingDebts: 0,
+    totalFournisseurs: 0,
+    totalFactures: 0,
+    facturesClients: 0,
+    facturesFournisseurs: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -35,15 +34,7 @@ export function Dashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = res.data;
-      setStats({
-        totalProducts: data.totalProducts || 0,
-        lowStock: data.lowStock || 0,
-        totalClients: data.totalClients || 0,
-        totalSuppliers: data.totalSuppliers || 0,
-        totalSales: data.totalSales || 0,
-        pendingDebts: data.pendingDebts || 0,
-      });
+      setStats(res.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
     } finally {
@@ -51,53 +42,60 @@ export function Dashboard() {
     }
   }
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64 text-gray-600">
         {t.common.loading}
       </div>
     );
+  }
 
   const statCards = [
     {
-      title: t.dashboard.totalProducts,
-      value: stats.totalProducts,
+      title: "Total Produits",
+      value: stats.totalProduits,
       icon: Package,
       color: "blue",
     },
     {
-      title: t.dashboard.lowStock,
-      value: stats.lowStock,
-      icon: AlertTriangle,
-      color: "red",
-    },
-    {
-      title: t.dashboard.totalClients,
+      title: "Total Clients",
       value: stats.totalClients,
       icon: Users,
       color: "green",
     },
     {
-      title: t.dashboard.totalSuppliers,
-      value: stats.totalSuppliers,
-      icon: Users,
+      title: "Total Fournisseurs",
+      value: stats.totalFournisseurs,
+      icon: Factory,
+      color: "orange",
+    },
+    {
+      title: "Total Factures",
+      value: stats.totalFactures,
+      icon: FileText,
+      color: "indigo",
+    },
+    {
+      title: "Factures Clients",
+      value: stats.facturesClients,
+      icon: UserCheck,
       color: "emerald",
     },
     {
-      title: t.dashboard.totalSales,
-      value: stats.totalSales.toFixed(2) + " DH",
-      icon: DollarSign,
-      color: "indigo",
+      title: "Factures Fournisseurs",
+      value: stats.facturesFournisseurs,
+      icon: UserMinus,
+      color: "red",
     },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {t.dashboard.title}
-        </h1>
-        <p className="mt-2 text-gray-600">{t.dashboard.overview}</p>
+        <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+        <p className="mt-2 text-gray-600">
+          Vue d’ensemble des statistiques principales
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -125,22 +123,6 @@ export function Dashboard() {
           );
         })}
       </div>
-
-      {stats.pendingDebts > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-yellow-600" />
-            <div>
-              <h3 className="font-semibold text-yellow-900">
-                {t.dashboard.pendingPayments}
-              </h3>
-              <p className="text-yellow-700 mt-1">
-                {stats.pendingDebts.toFixed(2)} DH
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

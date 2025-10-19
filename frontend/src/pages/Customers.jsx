@@ -1,92 +1,98 @@
-import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
-// import { supabase } from '../lib/supabase';
-import { useLanguage } from '../contexts/LanguageContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Customers() {
   const { t } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { isAdmin, token } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    contact: '',
-    address: ''
+    name: "",
+    email: "",
+    address: "",
   });
 
-  // useEffect(() => {
-  //   fetchCustomers();
-  // }, []);
+  // ✅ Fetch customers from backend
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
-  // async function fetchCustomers() {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('customers')
-  //       .select('*')
-  //       .order('created_at', { ascending: false });
+  async function fetchCustomers() {
+    try {
+      setLoading(true);
+      const res = await axios.get("http://localhost:5000/api/client", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCustomers(res.data.clients || []);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      alert("Failed to load customers");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  //     if (error) throw error;
-  //     setCustomers(data || []);
-  //   } catch (error) {
-  //     console.error('Error fetching customers:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
-
+  // ✅ Create or update customer
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       if (editingCustomer) {
-        const { error } = await supabase
-          .from('customers')
-          .update(formData)
-          .eq('id', editingCustomer.id);
-        if (error) throw error;
+        await axios.put(
+          `http://localhost:5000/api/client/${editingCustomer._id}`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       } else {
-        const { error } = await supabase
-          .from('customers')
-          .insert([formData]);
-        if (error) throw error;
+        await axios.post("http://localhost:5000/api/client", formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
-      // fetchCustomers();
+      fetchCustomers();
       closeModal();
     } catch (error) {
-      console.error('Error saving customer:', error);
-      alert(error.message);
+      console.error("Error saving customer:", error);
+      alert(error.response?.data?.message || "Error saving customer");
     }
   }
 
-  // async function handleDelete(id) {
-  //   if (!isAdmin) {
-  //     alert('Only admins can delete customers');
-  //     return;
-  //   }
-  //   if (!window.confirm('Are you sure?')) return;
+  // ✅ Delete customer
+  async function handleDelete(id) {
+    if (!isAdmin) {
+      alert("Only admins can delete customers");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this customer?"))
+      return;
 
-  //   try {
-  //     const { error } = await supabase
-  //       .from('customers')
-  //       .delete()
-  //       .eq('id', id);
-  //     if (error) throw error;
-  //     fetchCustomers();
-  //   } catch (error) {
-  //     console.error('Error deleting customer:', error);
-  //     alert(error.message);
-  //   }
-  // }
+    try {
+      await axios.delete(`http://localhost:5000/api/client/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchCustomers();
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      alert(error.response?.data?.message || "Error deleting customer");
+    }
+  }
 
   function openModal(customer = null) {
     if (customer) {
       setEditingCustomer(customer);
-      setFormData(customer);
+      setFormData({
+        name: customer.name,
+        email: customer.email,
+        address: customer.address,
+      });
     } else {
       setEditingCustomer(null);
-      setFormData({ name: '', contact: '', address: '' });
+      setFormData({ name: "", email: "", address: "" });
     }
     setShowModal(true);
   }
@@ -96,36 +102,55 @@ export function Customers() {
     setEditingCustomer(null);
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64">{t.common.loading}</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        {t.common.loading}
+      </div>
+    );
 
   return (
     <div className="space-y-6">
-      {/* <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">{t.customers.title}</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">
+          {t.customers?.title || "Customers"}
+        </h1>
         <button
           onClick={() => openModal()}
           className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
         >
           <Plus className="w-5 h-5" />
-          {t.customers.addCustomer}
+          {t.customers?.addCustomer || "Add Customer"}
         </button>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t.customers.name}</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t.customers.contact}</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t.customers.address}</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t.products.actions}</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                {t.customers?.name || "Name"}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                {t.customers?.contact || "Email"}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                {t.customers?.address || "Address"}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                {t.products?.actions || "Actions"}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {customers.map(customer => (
-              <tr key={customer.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium text-gray-900">{customer.name}</td>
-                <td className="px-6 py-4 text-gray-600">{customer.contact}</td>
+            {customers.map((customer) => (
+              <tr key={customer._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 font-medium text-gray-900">
+                  {customer.name}
+                </td>
+                <td className="px-6 py-4 text-gray-600">{customer.email}</td>
                 <td className="px-6 py-4 text-gray-600">{customer.address}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
@@ -137,7 +162,7 @@ export function Customers() {
                     </button>
                     {isAdmin && (
                       <button
-                        onClick={() => handleDelete(customer.id)}
+                        onClick={() => handleDelete(customer._id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -151,55 +176,79 @@ export function Customers() {
         </table>
       </div>
 
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full">
             <div className="p-6 border-b">
-              <h2 className="text-2xl font-bold">{editingCustomer ? t.customers.editCustomer : t.customers.addCustomer}</h2>
+              <h2 className="text-2xl font-bold">
+                {editingCustomer
+                  ? t.customers?.editCustomer || "Edit Customer"
+                  : t.customers?.addCustomer || "Add Customer"}
+              </h2>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t.customers.name}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.customers?.name || "Name"}
+                </label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t.customers.contact}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.customers?.contact || "Email"}
+                </label>
                 <input
-                  type="text"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t.customers.address}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.customers?.address || "Address"}
+                </label>
                 <textarea
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                   rows="3"
                   required
                 />
               </div>
               <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={closeModal} className="px-6 py-2 border rounded-lg hover:bg-gray-50">
-                  {t.common.cancel}
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-6 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  {t.common.cancel || "Cancel"}
                 </button>
-                <button type="submit" className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                  {t.common.save}
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  {t.common.save || "Save"}
                 </button>
               </div>
             </form>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }

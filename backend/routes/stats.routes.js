@@ -4,6 +4,6 @@ const { getStatistics } = require("../controllers/stats.controller");
 const { verifyToken, isAdmin } = require("../middleware/auth.middleware");
 
 // Admin only
-router.get("/", verifyToken, isAdmin, getStatistics);
+router.get("/", verifyToken, getStatistics);
 
 module.exports = router;

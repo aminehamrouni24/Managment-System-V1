@@ -13,6 +13,7 @@ const adminUsersCrud = require('./routes/admin.routes')
 const adminProduct = require("./routes/product.routes");
 const fournisseurRoutes = require('./routes/fournisseur.routes')
 const statsRoutes = require('./routes/stats.routes')
+const clientRoutes = require('./routes/client.routes')
 //  middlewares
 // Allow all origins (for development)
 app.use(cors());
@@ -24,6 +25,7 @@ app.use("/api", adminUsersCrud);
 app.use('/api/product' , adminProduct)
 app.use('/api/fournisseur', fournisseurRoutes)
 app.use("/api/stats", statsRoutes);
+app.use('/api/client' , clientRoutes)
 
 // DATABASE
 
