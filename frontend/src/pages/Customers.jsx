@@ -15,6 +15,7 @@ export function Customers() {
     name: "",
     email: "",
     address: "",
+    phone: ""
   });
 
   // ✅ Fetch customers from backend
@@ -89,10 +90,11 @@ export function Customers() {
         name: customer.name,
         email: customer.email,
         address: customer.address,
+        phone : customer.phone
       });
     } else {
       setEditingCustomer(null);
-      setFormData({ name: "", email: "", address: "" });
+      setFormData({ name: "", email: "", address: "" , phone:""});
     }
     setShowModal(true);
   }
@@ -137,6 +139,9 @@ export function Customers() {
                 {t.customers?.contact || "Email"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                {t.customers?.phone || "Phone"}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 {t.customers?.address || "Address"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -151,6 +156,7 @@ export function Customers() {
                   {customer.name}
                 </td>
                 <td className="px-6 py-4 text-gray-600">{customer.email}</td>
+                <td className="px-6 py-4 text-gray-600">{customer.phone}</td>
                 <td className="px-6 py-4 text-gray-600">{customer.address}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
@@ -211,6 +217,20 @@ export function Customers() {
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.customers?.phone|| "Téléphone"}
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
                   }
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                   required

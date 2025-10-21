@@ -19,6 +19,8 @@ import { Settings } from "./pages/Settings";
 import { Navbar } from "./components/Layout/Navbar";
 import { Sidebar } from "./components/Layout/Sidebar";
 import {Shipment} from "./pages/Shipment";
+import { Client } from "./pages/Client";
+import { DeliveryNotes } from "./pages/DeliveryNotes";
 
 function ProtectedLayout({ children }) {
   const { user, loading } = useAuth();
@@ -83,6 +85,14 @@ function AppContent() {
         }
       />
       <Route
+        path="/bondelivraison"
+        element={
+          <ProtectedLayout>
+            <DeliveryNotes/>
+          </ProtectedLayout>
+        }
+      />
+      <Route
         path="/invoices"
         element={
           <ProtectedLayout>
@@ -119,6 +129,14 @@ function AppContent() {
         element={
           <ProtectedLayout>
             <Settings />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/client"
+        element={
+          <ProtectedLayout>
+            <Client />
           </ProtectedLayout>
         }
       />

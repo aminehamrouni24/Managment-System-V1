@@ -150,7 +150,8 @@ exports.addDelivery = async (req, res) => {
     await fournisseur.save();
 
     // ✅ Increase stock quantity in Product
-    product.quantite = (product.quantite || 0) + quantiteNum;
+   product.quantite = Number(product.quantite || 0) + Number(quantite || 0);
+
     await product.save();
 
     res.status(200).json({

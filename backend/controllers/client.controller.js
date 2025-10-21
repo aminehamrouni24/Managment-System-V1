@@ -4,14 +4,14 @@ const Product = require("../models/Product");
 // 🟢 CREATE CLIENT
 exports.createClient = async (req, res) => {
   try {
-    const { name, email, address } = req.body;
+    const { name, email, address, phone } = req.body;
 
     const existingClient = await Client.findOne({ email });
     if (existingClient) {
       return res.status(400).json({ message: "Client already exists" });
     }
 
-    const newClient = await Client.create({ name, email, address });
+    const newClient = await Client.create({ name, email, address , phone});
     return res.status(201).json({
       message: "Client created successfully",
       client: newClient,
@@ -55,11 +55,11 @@ exports.getClientById = async (req, res) => {
 exports.updateClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, address } = req.body;
+    const { name, email, address , phone } = req.body;
 
     const updatedClient = await Client.findByIdAndUpdate(
       id,
-      { name, email, address },
+      { name, email, address , phone },
       { new: true }
     );
 

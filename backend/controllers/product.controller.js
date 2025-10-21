@@ -80,10 +80,13 @@ exports.updateProduct = async (req, res) => {
     product.nom = nom || product.nom;
     product.marque = marque || product.marque;
     product.categorie = categorie || product.categorie;
-    product.quantite = Number(product.quantite) + Number(quantite);
+   if (quantite !== undefined && quantite !== null) {
+     product.quantite = Number(quantite);
+   }
     product.prixAchat = Number(prixAchat);
 
     await product.save();
+    console.log("After save:", typeof product.quantite, product.quantite);
 
     return res.status(200).json({
       message: "Product updated successfully",
@@ -118,7 +121,8 @@ exports.increase = async (req, res) => {
       return res.status(404).json({ message: "Produit introuvable" });
 
     console.log("Before:", product.quantite, "Adding:", quantite);
-    product.quantite += quantite;
+    product.quantite = Number(product.quantite || 0) + Number(quantite || 0);
+
     await product.save();
     console.log("After save:", product.quantite);
 

@@ -6,6 +6,10 @@ import {
   FileText,
   UserCheck,
   UserMinus,
+  DollarSign,
+  TrendingUp,
+  BarChart3,
+  Banknote
 } from "lucide-react";
 import axios from "axios";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -21,6 +25,9 @@ export function Dashboard() {
     totalFactures: 0,
     facturesClients: 0,
     facturesFournisseurs: 0,
+    valeurProduits: 0,
+    ventesMensuelles: 0,
+    margesMensuelles: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -33,7 +40,6 @@ export function Dashboard() {
       const res = await axios.get("http://localhost:5000/api/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setStats(res.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -67,26 +73,35 @@ export function Dashboard() {
       title: "Total Fournisseurs",
       value: stats.totalFournisseurs,
       icon: Factory,
-      color: "orange",
-    },
-    {
-      title: "Total Factures",
-      value: stats.totalFactures,
-      icon: FileText,
-      color: "indigo",
-    },
-    {
-      title: "Factures Clients",
-      value: stats.facturesClients,
-      icon: UserCheck,
-      color: "emerald",
-    },
-    {
-      title: "Factures Fournisseurs",
-      value: stats.facturesFournisseurs,
-      icon: UserMinus,
       color: "red",
     },
+    {
+      title: "Valeur Produits (DT)",
+      value: stats.valeurProduits.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+      }),
+      icon: Banknote,
+      color: "green",
+    },
+    {
+      title: "Ventes Mensuelles (DT)",
+      value: stats.ventesMensuelles.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+      }),
+      icon: BarChart3,
+      color: "red",
+    },
+    {
+      title: "Marges Mensuelles (DT)",
+      value: stats.margesMensuelles.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+      }),
+      icon: TrendingUp,
+      color: stats.margesMensuelles >= 0 ? "brown" : "red",
+    },
+    
+     
+     
   ];
 
   return (
