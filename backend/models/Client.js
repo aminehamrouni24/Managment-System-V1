@@ -10,57 +10,28 @@ const clientSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      trim: true,
       unique: true,
-      lowercase: true,
-      trim: true,
     },
-    address: {
-      type: String,
-      trim: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    address: String,
+    phone: String,
 
+    // 🛒 Produits achetés
     produitsAchetes: [
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product", // 🔗 Reference to the Product model
+          ref: "Product",
           required: true,
         },
-        quantite: {
-          type: Number,
-          required: true,
-          min: 1,
-        },
-        prixAchat: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        montantTotal: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        montantPaye: {
-          type: Number,
-          required: true,
-          min: 0,
-          default: 0,
-        },
-        resteAPayer: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        dateAchat: {
-          type: Date,
-          default: Date.now,
-        },
+        quantite: { type: Number, required: true, min: 1 },
+        prixAchat: { type: Number, required: true, min: 0 },
+        prixVente: { type: Number, required: false, min: 0 }, // ✅ NEW
+        marge: { type: Number, required: false, default: 0 }, // ✅ NEW
+        montantTotal: { type: Number, required: true, min: 0 },
+        montantPaye: { type: Number, required: true, min: 0 },
+        resteAPayer: { type: Number, required: true, min: 0 },
+        dateAchat: { type: Date, default: Date.now },
       },
     ],
   },

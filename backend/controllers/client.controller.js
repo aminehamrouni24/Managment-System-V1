@@ -92,11 +92,11 @@ exports.deleteClient = async (req, res) => {
   }
 };
 
-// 🛒 ADD A PURCHASE FOR A CLIENT
+// 🛒 ADD A PURCHASE FOR A CLIENT (with prixVente + marge)
 exports.addPurchase = async (req, res) => {
   try {
     const { clientId } = req.params;
-    const { productId, quantite, montantPaye } = req.body;
+    const { productId, quantite, montantPaye, prixVente } = req.body;
 
     // Validate client
     const client = await Client.findById(clientId);
@@ -110,40 +110,58 @@ exports.addPurchase = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Check available stock
-    if (product.quantite < quantite) {
+    // Ensure numeric values
+    const quantiteNum = Number(quantite);
+    const montantPayeNum = Number(montantPaye);
+    const prixAchat = Number(product.prixAchat);
+    const prixVenteNum = prixVente ? Number(prixVente) : prixAchat;
+    const marge = prixVenteNum - prixAchat;
+
+    // Stock check
+    if (product.quantite < quantiteNum) {
       return res.status(400).json({ message: "Not enough stock available" });
     }
 
-    const prixAchat = product.prixAchat;
-    const montantTotal = prixAchat * quantite;
-    const resteAPayer = montantTotal - montantPaye;
+    // Calculations
+    const montantTotal = prixVenteNum * quantiteNum;
+    const resteAPayer = montantTotal - montantPayeNum;
 
-    // Update product quantity
-    product.quantite -= quantite;
+    // Update stock
+    product.quantite -= quantiteNum;
     await product.save();
 
-    // Add purchase to client
+    // Add purchase with prixVente + marge
     client.produitsAchetes.push({
       product: productId,
-      quantite,
+      quantite: quantiteNum,
       prixAchat,
+      prixVente: prixVenteNum,
+      marge,
       montantTotal,
-      montantPaye,
+      montantPaye: montantPayeNum,
       resteAPayer,
       dateAchat: new Date(),
     });
 
     await client.save();
 
+    const updatedClient = await Client.findById(clientId).populate(
+      "produitsAchetes.product",
+      "nom marque categorie prixAchat"
+    );
+
     return res.status(200).json({
       message: "Purchase added successfully",
-      client,
+      client: updatedClient,
     });
   } catch (error) {
+    console.error("Add Purchase Error:", error);
     return res.status(500).json({ message: error.message });
   }
 };
+
+
+
 
 // 💰 UPDATE PAYMENT FOR A PURCHASE
 exports.updatePayment = async (req, res) => {
@@ -156,8 +174,11 @@ exports.updatePayment = async (req, res) => {
       return res.status(404).json({ message: "Client not found" });
     }
 
+    // Fix comparison for populated products
     const purchase = client.produitsAchetes.find(
-      (p) => p.product.toString() === productId
+      (p) =>
+        p.product?.toString() === productId ||
+        p.product?._id?.toString() === productId
     );
 
     if (!purchase) {
@@ -167,7 +188,7 @@ exports.updatePayment = async (req, res) => {
     }
 
     // Update payment
-    purchase.montantPaye += additionalPayment;
+    purchase.montantPaye += Number(additionalPayment);
     purchase.resteAPayer = purchase.montantTotal - purchase.montantPaye;
 
     await client.save();

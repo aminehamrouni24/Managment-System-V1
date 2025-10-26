@@ -20,6 +20,7 @@ export function Client() {
   const [formData, setFormData] = useState({
     productId: "",
     quantite: "",
+    prixVente: "", // added
     montantPaye: "",
   });
   const [additionalPayment, setAdditionalPayment] = useState("");
@@ -103,12 +104,23 @@ export function Client() {
 
     autoTable(doc, {
       startY: 70,
-      head: [["Produit", "Quantité", "Prix (DT)", "Total", "Payé", "Reste"]],
+      head: [
+        [
+          "Produit",
+          "Quantité",
+          "Prix Achat",
+          "Prix Vente",
+          "Total",
+          "Payé",
+          "Reste",
+        ],
+      ],
       body: [
         [
           purchase.product?.nom || "—",
           purchase.quantite,
           `${purchase.prixAchat} DT`,
+          `${purchase.prixVente || "-"} DT`,
           `${purchase.montantTotal} DT`,
           `${purchase.montantPaye} DT`,
           `${purchase.resteAPayer} DT`,
@@ -138,7 +150,12 @@ export function Client() {
   // 🔘 Modal handlers
   function openModal(clientId) {
     setSelectedClient(clientId);
-    setFormData({ productId: "", quantite: "", montantPaye: "" });
+    setFormData({
+      productId: "",
+      quantite: "",
+      prixVente: "",
+      montantPaye: "",
+    });
     setShowModal(true);
   }
 
@@ -209,7 +226,9 @@ export function Client() {
                 <tr>
                   <th className="px-4 py-2 text-left">Produit</th>
                   <th className="px-4 py-2 text-left">Quantité</th>
-                  <th className="px-4 py-2 text-left">Prix</th>
+                  <th className="px-4 py-2 text-left">Prix Achat</th>
+                  <th className="px-4 py-2 text-left">Prix Vente</th>
+                  <th className="px-4 py-2 text-left">Marge</th>
                   <th className="px-4 py-2 text-left">Total</th>
                   <th className="px-4 py-2 text-left">Payé</th>
                   <th className="px-4 py-2 text-left">Reste</th>
@@ -223,6 +242,14 @@ export function Client() {
                     <td className="px-4 py-2">{p.product?.nom}</td>
                     <td className="px-4 py-2">{p.quantite}</td>
                     <td className="px-4 py-2">{p.prixAchat} DT</td>
+                    <td className="px-4 py-2">
+                      {p.prixVente ? `${p.prixVente} DT` : "-"}
+                    </td>
+                    <td className="px-4 py-2">
+                      {p.prixVente
+                        ? `${(p.prixVente - p.prixAchat).toFixed(2)} DT`
+                        : "-"}
+                    </td>
                     <td className="px-4 py-2">{p.montantTotal} DT</td>
                     <td className="px-4 py-2">{p.montantPaye} DT</td>
                     <td className="px-4 py-2">{p.resteAPayer} DT</td>
@@ -257,7 +284,7 @@ export function Client() {
                 ))}
                 {/* Totals */}
                 <tr className="bg-gray-100 font-semibold">
-                  <td colSpan={3} className="text-right px-4 py-2">
+                  <td colSpan={5} className="text-right px-4 py-2">
                     Totaux :
                   </td>
                   <td className="px-4 py-2">{totals.total.toFixed(2)} DT</td>
@@ -270,29 +297,6 @@ export function Client() {
           </div>
         );
       })}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-50"
-          >
-            ← Précédent
-          </button>
-          <span>
-            Page {page} sur {totalPages}
-          </span>
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-50"
-          >
-            Suivant →
-          </button>
-        </div>
-      )}
 
       {/* Add Purchase Modal */}
       {showModal && (
@@ -323,27 +327,39 @@ export function Client() {
                 </select>
               </div>
 
-              <div className="flex gap-4">
-                <input
-                  type="number"
-                  placeholder="Quantité"
-                  value={formData.quantite}
-                  onChange={(e) =>
-                    setFormData({ ...formData, quantite: e.target.value })
-                  }
-                  className="w-1/2 border rounded-lg px-3 py-2"
-                  required
-                />
-                <input
-                  type="number"
-                  placeholder="Montant Payé"
-                  value={formData.montantPaye}
-                  onChange={(e) =>
-                    setFormData({ ...formData, montantPaye: e.target.value })
-                  }
-                  className="w-1/2 border rounded-lg px-3 py-2"
-                  required
-                />
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                  <input
+                    type="number"
+                    placeholder="Quantité"
+                    value={formData.quantite}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantite: e.target.value })
+                    }
+                    className="w-1/3 border rounded-lg px-3 py-2"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Prix de vente (DT)"
+                    value={formData.prixVente}
+                    onChange={(e) =>
+                      setFormData({ ...formData, prixVente: e.target.value })
+                    }
+                    className="w-1/3 border rounded-lg px-3 py-2"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Montant Payé"
+                    value={formData.montantPaye}
+                    onChange={(e) =>
+                      setFormData({ ...formData, montantPaye: e.target.value })
+                    }
+                    className="w-1/3 border rounded-lg px-3 py-2"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
