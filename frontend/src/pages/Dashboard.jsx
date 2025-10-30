@@ -37,9 +37,12 @@ export function Dashboard() {
 
   async function fetchStats() {
     try {
-      const res = await axios.get("http://localhost:5000/api/stats", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/stats` ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setStats(res.data);
     } catch (error) {
       console.error("Error fetching stats:", error);

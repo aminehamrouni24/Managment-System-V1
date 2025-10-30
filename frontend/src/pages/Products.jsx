@@ -28,9 +28,12 @@ export function Products() {
 
   async function fetchProducts() {
     try {
-      const res = await axios.get("http://localhost:5000/api/product/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/all` ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -53,7 +56,9 @@ export function Products() {
       if (editingProduct) {
         // Update existing product
         await axios.put(
-          `http://localhost:5000/api/product/${editingProduct._id}`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/${
+            editingProduct._id
+          }`,
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -71,7 +76,9 @@ export function Products() {
           const newQuantite = parseInt(payload.quantite, 10);
 
           await axios.put(
-            `http://localhost:5000/api/product/${existing._id}`,
+            `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/${
+              existing._id
+            }`,
             {
               ...existing,
               quantite: newQuantite,
@@ -81,9 +88,13 @@ export function Products() {
           );
         } else {
           // Create new product
-          await axios.post("http://localhost:5000/api/product", payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await axios.post(
+             `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product` ,
+            payload,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
         }
       }
 
@@ -100,9 +111,12 @@ export function Products() {
       return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/product/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchProducts();
     } catch (error) {
       alert(error.response?.data?.message || "Erreur lors de la suppression.");

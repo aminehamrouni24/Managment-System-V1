@@ -35,9 +35,12 @@ export function Client() {
 
   async function fetchClients() {
     try {
-      const res = await axios.get("http://localhost:5000/api/client", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setClients(res.data.clients || []);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -46,9 +49,12 @@ export function Client() {
 
   async function fetchProducts() {
     try {
-      const res = await axios.get("http://localhost:5000/api/product/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/all`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -60,7 +66,9 @@ export function Client() {
     e.preventDefault();
     try {
       await axios.post(
-        `http://localhost:5000/api/client/${selectedClient}/purchase`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_URL
+        }/api/client/${selectedClient}/purchase`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -76,7 +84,9 @@ export function Client() {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:5000/api/client/${selectedClient}/purchase/${selectedPurchase}/payment`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_URL
+        }/api/client/${selectedClient}/purchase/${selectedPurchase}/payment`,
         { additionalPayment: parseFloat(additionalPayment) },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -20,9 +20,12 @@ export function Stock() {
 
   async function fetchProducts() {
     try {
-      const res = await axios.get("http://localhost:5000/api/product/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/all` ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products || []);
     } catch (error) {
       console.error("Erreur lors du chargement des produits :", error);

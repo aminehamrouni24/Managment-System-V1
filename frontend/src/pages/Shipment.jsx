@@ -36,9 +36,12 @@ export function Shipment() {
 
   async function fetchFournisseurs() {
     try {
-      const res = await axios.get("http://localhost:5000/api/fournisseur", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/fournisseur`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const normalized = res.data.data.map((f) => ({
         ...f,
         contact: f.contact ? String(f.contact) : "",
@@ -52,9 +55,12 @@ export function Shipment() {
 
   async function fetchProducts() {
     try {
-      const res = await axios.get("http://localhost:5000/api/product/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/all`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -77,7 +83,9 @@ export function Shipment() {
     e.preventDefault();
     try {
       await axios.post(
-        `http://localhost:5000/api/fournisseur/${selectedFournisseur}/produit`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_URL
+        }/api/fournisseur/${selectedFournisseur}/produit`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -100,7 +108,9 @@ export function Shipment() {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:5000/api/fournisseur/${selectedFournisseur}/produit/${selectedDelivery}/payment`,
+        `${
+          import.meta.env.VITE_REACT_APP_BACKEND_URL
+        }/api/fournisseur/${selectedFournisseur}/produit/${selectedDelivery}/payment`,
         { additionalPayment: parseFloat(additionalPayment) },
         {
           headers: { Authorization: `Bearer ${token}` },

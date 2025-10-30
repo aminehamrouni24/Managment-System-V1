@@ -26,7 +26,7 @@ export function Customers() {
   async function fetchCustomers() {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/client", {
+      const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client` , {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCustomers(res.data.clients || []);
@@ -44,16 +44,22 @@ export function Customers() {
     try {
       if (editingCustomer) {
         await axios.put(
-          `http://localhost:5000/api/client/${editingCustomer._id}`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client/${
+            editingCustomer._id
+          }`,
           formData,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
       } else {
-        await axios.post("http://localhost:5000/api/client", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+           `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client` ,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       }
       fetchCustomers();
       closeModal();
@@ -73,9 +79,12 @@ export function Customers() {
       return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/client/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchCustomers();
     } catch (error) {
       console.error("Error deleting customer:", error);

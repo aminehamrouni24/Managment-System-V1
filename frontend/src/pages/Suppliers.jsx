@@ -24,9 +24,12 @@ export function Suppliers() {
 
   async function fetchSuppliers() {
     try {
-      const res = await axios.get("http://localhost:5000/api/fournisseur", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/fournisseur` ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setSuppliers(res.data.data || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
@@ -59,14 +62,20 @@ export function Suppliers() {
     try {
       if (editingSupplier) {
         await axios.put(
-          `http://localhost:5000/api/fournisseur/${editingSupplier._id}`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/fournisseur/${
+            editingSupplier._id
+          }`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
-        await axios.post("http://localhost:5000/api/fournisseur", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+            `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/fournisseur` ,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       }
       fetchSuppliers();
       closeModal();
@@ -80,9 +89,12 @@ export function Suppliers() {
     if (!isAdmin || !window.confirm("Êtes-vous sûr de vouloir supprimer ?"))
       return;
     try {
-      await axios.delete(`http://localhost:5000/api/fournisseur/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/fournisseur/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       fetchSuppliers();
     } catch (error) {
       alert(error.response?.data?.message || "Erreur lors de la suppression.");

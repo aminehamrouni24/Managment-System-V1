@@ -31,16 +31,19 @@ export function DeliveryNotes() {
   // try primary endpoint, fallback to /all if 404
   async function fetchBons() {
     try {
-      const res = await axios.get("http://localhost:5000/api/bonlivraison", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/bonlivraison` ,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setBons(res.data.bons || res.data || []);
     } catch (err) {
       if (err.response && err.response.status === 404) {
         // fallback
         try {
           const res2 = await axios.get(
-            "http://localhost:5000/api/bonlivraison/all",
+             `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/bonlivraison/all` ,
             { headers: { Authorization: `Bearer ${token}` } }
           );
           setBons(res2.data.bons || res2.data || []);
@@ -57,9 +60,12 @@ export function DeliveryNotes() {
 
   async function fetchClients() {
     try {
-      const res = await axios.get("http://localhost:5000/api/client", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/client`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setClients(res.data.clients || res.data || []);
     } catch (err) {
       console.error("fetchClients error:", err);
@@ -69,9 +75,12 @@ export function DeliveryNotes() {
 
   async function fetchProducts() {
     try {
-      const res = await axios.get("http://localhost:5000/api/product/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/product/all`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products || res.data || []);
     } catch (err) {
       console.error("fetchProducts error:", err);
@@ -149,9 +158,13 @@ export function DeliveryNotes() {
     try {
       setLoading(true);
       // try primary endpoint
-      await axios.post("http://localhost:5000/api/bonlivraison", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+         `${import.meta.env.VITE_REACT_APP_BACKEND_URL}/api/bonlivraison` ,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setShowModal(false);
       // refresh lists
       await fetchBons();
