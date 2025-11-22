@@ -3,12 +3,12 @@ const Product = require("../models/Product");
 // 🟢 CREATE PRODUCT
 exports.createProduct = async (req, res) => {
   try {
-    const { nom, marque, categorie, quantite, prixAchat } = req.body;
+    const { nom, marque,  quantite, prixAchat } = req.body;
 
     if (
       !nom ||
       !marque ||
-      !categorie ||
+      
       quantite == null ||
       prixAchat == null
     ) {
@@ -18,7 +18,7 @@ exports.createProduct = async (req, res) => {
     const newProduct = await Product.create({
       nom,
       marque,
-      categorie,
+    
       quantite,
       prixAchat,
       createdBy: req.user.id, // admin ID from token
@@ -70,7 +70,7 @@ exports.getProductById = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, marque, categorie, quantite, prixAchat } = req.body;
+    const { nom, marque,  quantite, prixAchat } = req.body;
 
     const product = await Product.findById(id);
     if (!product) {
@@ -79,7 +79,7 @@ exports.updateProduct = async (req, res) => {
 
     product.nom = nom || product.nom;
     product.marque = marque || product.marque;
-    product.categorie = categorie || product.categorie;
+    
    if (quantite !== undefined && quantite !== null) {
      product.quantite = Number(quantite);
    }

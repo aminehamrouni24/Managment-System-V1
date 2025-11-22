@@ -17,6 +17,8 @@ export const translations = {
       client: "Gestion Client",
       bondelivraison: "Bon de Livraison",
       deliveries: "Livraisons",
+      partners: "Partenaires",
+      bordereau: "Bordereau",
     },
     auth: {
       login: "Connexion",
@@ -86,7 +88,7 @@ export const translations = {
       addCustomer: "Ajouter un Client",
       editCustomer: "Modifier le Client",
       name: "Nom",
-      contact: "Email",
+      contact: "CIN",
       address: "Adresse",
       phone: "Téléphone",
       purchases: "Achats",

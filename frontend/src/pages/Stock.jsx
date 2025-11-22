@@ -46,7 +46,7 @@ export function Stock() {
     const tableData = products.map((p) => [
       p.nom,
       p.marque,
-      p.categorie,
+ 
       p.quantite,
       `${p.prixAchat.toFixed(2)} DT`,
       `${(p.quantite * p.prixAchat).toFixed(2)} DT`,
@@ -58,7 +58,7 @@ export function Stock() {
         [
           "Nom",
           "Marque",
-          "Catégorie",
+      
           "Quantité",
           "Prix (DT)",
           "Valeur Totale (DT)",
@@ -85,7 +85,7 @@ export function Stock() {
     const data = products.map((p) => ({
       Nom: p.nom,
       Marque: p.marque,
-      Catégorie: p.categorie,
+   
       Quantité: p.quantite,
       "Prix (DT)": p.prixAchat.toFixed(2),
       "Valeur Totale (DT)": (p.quantite * p.prixAchat).toFixed(2),
@@ -98,7 +98,7 @@ export function Stock() {
     data.push({
       Nom: "—",
       Marque: "—",
-      Catégorie: "—",
+  
       Quantité: "—",
       "Prix (DT)": "—",
       "Valeur Totale (DT)": totalValeur.toFixed(2),
@@ -158,9 +158,7 @@ export function Stock() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Marque
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Catégorie
-              </th>
+             
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                 Quantité
               </th>
@@ -177,7 +175,7 @@ export function Stock() {
               <tr key={p._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 font-medium text-gray-900">{p.nom}</td>
                 <td className="px-6 py-4 text-gray-600">{p.marque}</td>
-                <td className="px-6 py-4 text-gray-600">{p.categorie}</td>
+            
                 <td className="px-6 py-4 text-right text-gray-600">
                   {p.quantite}
                 </td>

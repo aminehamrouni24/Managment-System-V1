@@ -41,14 +41,14 @@ export function Login() {
         >
           Français
         </button>
-        <button
+        {/* <button
           onClick={() => setLanguage("ar")}
           className={`px-3 py-1.5 rounded-md text-sm font-medium ${
             language === "ar" ? "bg-green-500 text-white" : "text-gray-600"
           }`}
         >
           العربية
-        </button>
+        </button> */}
       </div>
 
       <div className="w-full max-w-md">

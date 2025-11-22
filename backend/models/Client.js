@@ -7,11 +7,10 @@ const clientSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    email: {
+    cin: {
       type: String,
       required: true,
-      trim: true,
-      unique: true,
+        unique: true,
     },
     address: String,
     phone: String,

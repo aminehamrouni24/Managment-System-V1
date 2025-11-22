@@ -21,6 +21,9 @@ import { Sidebar } from "./components/Layout/Sidebar";
 import {Shipment} from "./pages/Shipment";
 import { Client } from "./pages/Client";
 import { DeliveryNotes } from "./pages/DeliveryNotes";
+import { Partners } from "./pages/Partners";
+import Bordereau from "./pages/Bordereau";
+ 
 
 function ProtectedLayout({ children }) {
   const { user, loading } = useAuth();
@@ -88,7 +91,7 @@ function AppContent() {
         path="/bondelivraison"
         element={
           <ProtectedLayout>
-            <DeliveryNotes/>
+            <DeliveryNotes />
           </ProtectedLayout>
         }
       />
@@ -141,10 +144,26 @@ function AppContent() {
         }
       />
       <Route
+        path="/partners"
+        element={
+          <ProtectedLayout>
+            <Partners />
+          </ProtectedLayout>
+        }
+      />
+      <Route
         path="/shipment"
         element={
           <ProtectedLayout>
             <Shipment />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/bordereau"
+        element={
+          <ProtectedLayout>
+            < Bordereau />
           </ProtectedLayout>
         }
       />

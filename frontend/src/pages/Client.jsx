@@ -221,7 +221,7 @@ export function Client() {
           <div key={client._id} className="bg-white rounded-xl shadow p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-800">
-                {client.name} — {client.email}
+                {client.name} — {client.cin}
               </h2>
               <button
                 onClick={() => openModal(client._id)}
